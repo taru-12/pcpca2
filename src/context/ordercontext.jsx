@@ -1,5 +1,4 @@
-import React, { createContext, useReducer, useEffect } from "react";
-import { orderReducer } from "../reducer/orderReducer";
+import React, { createContext, useReducer } from "react";
 
 export const OrderContext = createContext();
 
@@ -8,19 +7,25 @@ const initialState = {
   filtered: [],
 };
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_ORDERS":
+      return { ...state, orders: action.payload, filtered: action.payload };
+    case "FILTER":
+      return {
+        ...state,
+        filtered: state.orders.filter(
+          (o) =>
+            action.payload === "all" || o.status === action.payload
+        ),
+      };
+    default:
+      return state;
+  }
+};
+
 export const OrderProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(orderReducer, initialState);
-
-  useEffect(() => {
-    const data = [
-      { id: 1, item: "Pizza", price: 200, status: "delivered" },
-      { id: 2, item: "Burger", price: 150, status: "pending" },
-      { id: 3, item: "Pasta", price: 180, status: "delivered" },
-    ];
-
-    dispatch({ type: "SET_ORDERS", payload: data });
-    dispatch({ type: "FILTER", payload: "all" });
-  }, []);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
     <OrderContext.Provider value={{ state, dispatch }}>
