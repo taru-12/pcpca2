@@ -1,9 +1,12 @@
 import React, { useContext } from "react";
-import { OrderContext } from "../context/ordercontext";
+import { OrderContext } from "../context/OrderContextontext";
 import { Link } from "react-router-dom";
 
 function Orders() {
   const { state, dispatch } = useContext(OrderContext);
+
+  // 🔥 fallback safety
+  const orders = state?.filtered || [];
 
   return (
     <div>
@@ -11,6 +14,7 @@ function Orders() {
 
       {/* FILTER */}
       <select
+        data-testid="filter"
         onChange={(e) =>
           dispatch({ type: "FILTER", payload: e.target.value })
         }
@@ -20,12 +24,20 @@ function Orders() {
         <option value="pending">Pending</option>
       </select>
 
+      {/* EMPTY STATE */}
+      {orders.length === 0 && (
+        <p data-testid="empty">No Orders Available</p>
+      )}
+
       {/* LIST */}
-      {state.filtered.map((o) => (
+      {orders.map((o) => (
         <div key={o.id} data-testid="order-item">
-          <p>{o.item}</p>
-          <p>{o.status}</p>
-          <Link to={`/orders/${o.id}`}>View</Link>
+          <p data-testid="item">{o.item}</p>
+          <p data-testid="status">{o.status}</p>
+
+          <Link to={`/orders/${o.id}`} data-testid="view-link">
+            View
+          </Link>
         </div>
       ))}
     </div>
